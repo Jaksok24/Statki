@@ -24,8 +24,8 @@ info_style = "color: White; background-color: #87CEFA; text-align: Center; borde
 DB_PATH = "data/statki.db"
 conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
-c.execute('''CREATE TABLE IF NOT EXISTS rejs (id INTEGER PRIMARY KEY, customer TEXT, date DATE, hour TIME, ship TEXT, fee BOOLEAN, people INTEGER, nb TEXT, cruise TEXT, fee_cost INTEGER, catering TEXT, note TEXT, dc TEXT, checked TEXT)''')
-c.execute('''CREATE TABLE IF NOT EXISTS dinners (dID INTEGER PRIMARY KEY, dinner TEXT, data DATE, hour_start TIME, hour_stop TIME, people INEGER, checked TEXT)''')
+# c.execute('''CREATE TABLE IF NOT EXISTS rejs (id INTEGER PRIMARY KEY, customer TEXT, date DATE, hour TIME, ship TEXT, fee BOOLEAN, people INTEGER, nb TEXT, cruise TEXT, fee_cost INTEGER, catering TEXT, note TEXT, dc TEXT, checked TEXT)''')
+# c.execute('''CREATE TABLE IF NOT EXISTS dinners (dID INTEGER PRIMARY KEY, dinner TEXT, data DATE, hour_start TIME, hour_stop TIME, people INEGER, checked TEXT)''')
 
 #Tablice/zmienne wykorzystywane dla całej aplikacji
 current_time = datetime.now().strftime("%H:%M")
