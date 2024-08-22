@@ -7,6 +7,7 @@ from streamlit_option_menu import option_menu
 import logging
 from logging import getLogger
 import re
+import os
 
 # Konfiguracja strony
 st.set_page_config(page_title="Statki", page_icon=":ship:", layout="wide")
