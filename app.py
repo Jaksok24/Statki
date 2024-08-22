@@ -9,6 +9,9 @@ from logging import getLogger
 import re
 import os
 
+permissions = os.stat('/mount/src/statki/statki.db').st_mode
+st.write("Uprawnienia pliku bazy danych:", oct(permissions))
+
 # Konfiguracja strony
 st.set_page_config(page_title="Statki", page_icon=":ship:", layout="wide")
 
