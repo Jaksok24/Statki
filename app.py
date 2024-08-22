@@ -21,7 +21,7 @@ title_style = "color: White; background-color: #B0C4DE; text-align: Center; bord
 info_style = "color: White; background-color: #87CEFA; text-align: Center; border-radius: 10px; font-weight: bold;"
 
 #Łączenia się z bazą danych
-conn = sqlite3.connect(st.secrets["sqlite"]["statki"])
+conn = sqlite3.connect(st.secrets["sqlite"]["database"])
 c = conn.cursor()
 # c.execute('''CREATE TABLE IF NOT EXISTS rejs (id INTEGER PRIMARY KEY, customer TEXT, date DATE, hour TIME, ship TEXT, fee BOOLEAN, people INTEGER, nb TEXT, cruise TEXT, fee_cost INTEGER, catering TEXT, note TEXT, dc TEXT, checked TEXT)''')
 # c.execute('''CREATE TABLE IF NOT EXISTS dinners (dID INTEGER PRIMARY KEY, dinner TEXT, data DATE, hour_start TIME, hour_stop TIME, people INEGER, checked TEXT)''')
