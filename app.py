@@ -37,6 +37,7 @@ ckt_vip = []
 tablicaDanych = []
 tablicaDanych2 = []
 editData = []
+test = []
 
 #Klasa szczegółowych danych o statkach
 class Details:
