@@ -227,13 +227,10 @@ def addCruiseInfo():
         columns = st.columns([1,1])
         with columns[0]:
             customer = st.text_input("Podaj imię i nazwisko")
-            date = st.date_input("Podaj dzień", value="today", format="DD.MM.YYYY", label_visibility="visible")
+            date = st.date_input("Podaj dzień", value=today, format="DD.MM.YYYY", label_visibility="visible")
             ship = st.selectbox("Wybierz statek", ["Albatros", "Biała Mewa", "Kormoran", "CKT VIP", ""])
             fee = st.selectbox("Zaliczka", ["Nie", "Tak"])
-            if ship == "Albatros":
-                people = st.number_input("Ilość osób", step=1, max_value=60, min_value=0)
-            else:
-                people = st.number_input("Ilość osób", step=1, max_value=30, min_value=0)
+            people = st.number_input("Ilość osób", step=1, max_value=60, min_value=0) if ship == "Albatros" else st.number_input("Ilość osób", step=1, max_value=30, min_value=0)
         with columns[1]:
             phone_column = st.columns([1,3])
             with phone_column[0]:
@@ -241,8 +238,7 @@ def addCruiseInfo():
             with phone_column[1]:
                 nb = st.text_input("Podaj numer telefonu")
             hour = st.time_input("Podaj godzinę")
-            cruise = st.selectbox("Wybierz rejs", [row for row in 
-                                                   rejsy])
+            cruise = st.selectbox("Wybierz rejs", rejsy)
             fee_cost = st.number_input("Kwota zaliczki")
             catering = st.selectbox("Katering", ["Nie", "Tak"])
         note = st.text_area("Notatki")
@@ -250,35 +246,41 @@ def addCruiseInfo():
     if add_button:
         if customer != "" and nb != "":
             hour_str = hour.strftime("%H:%M")
-            c.execute("INSERT INTO rejs (customer, date, hour, ship, fee, people, nb, cruise, fee_cost, catering, note, dc, checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'cruise')",
-                    (customer, date, hour_str, ship, fee, people, nb, cruise, fee_cost, catering, note, dc))
-            conn.commit()
-            st.success("Dane zostały dodane pomyślnie")
+            try:
+                c.execute("INSERT INTO rejs (customer, date, hour, ship, fee, people, nb, cruise, fee_cost, catering, note, dc, checked) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'cruise')",
+                        (customer, date, hour_str, ship, fee, people, nb, cruise, fee_cost, catering, note, dc))
+                conn.commit()
+                st.success("Dane zostały dodane pomyślnie")
+            except sqlite3.Error as e:
+                st.error(f"An error occurred: {e}")
         else:
             st.warning("Wprowadź dane", icon="🚨")
             
 #Dodawanie informacji o obiadach
 def addDinner():
-     with st.container(border=True):
-         dinner = st.text_area("Podaj obiad", key="dinner_add1")
-         group = st.number_input("Podaj liczbę osób", min_value=0, step=1, key="dinner_add2")
-         dinCol = st.columns([1,1])
-         with dinCol[0]:
+    with st.container(border=True):
+        dinner = st.text_area("Podaj obiad", key="dinner_add1")
+        group = st.number_input("Podaj liczbę osób", min_value=0, step=1, key="dinner_add2")
+        dinCol = st.columns([1,1])
+        with dinCol[0]:
             date = st.date_input("Podaj date", key="dinner_add3")
-         with dinCol[1]:
+        with dinCol[1]:
             dinCol2 = st.columns([1,1])
             with dinCol2[0]:
                 hour_start = st.time_input("Podaj godzinę rozpoczęcia", key="dinner_add4")
             with dinCol2[1]:
                 hour_stop = st.time_input("Podaj godzinę zakończenia", key="dinner_add4+1")
-         dinBut = st.button("Dodaj obiad")
-         if dinBut:
-             if dinner != "":
+        dinBut = st.button("Dodaj obiad")
+        if dinBut:
+            if dinner != "":
                 hour_str = hour_start.strftime("%H:%M")
                 hour_str2 = hour_stop.strftime("%H:%M")
-                c.execute('''INSERT INTO dinners (dinner, data, hour_start, hour_stop, people, checked) VALUES (?,?,?,?,?, 'dinner')''', (dinner, date, hour_str, hour_str2, group))
-                conn.commit()
-                st.success("Dodano obiad")
+                try:
+                    c.execute('''INSERT INTO dinners (dinner, data, hour_start, hour_stop, people, checked) VALUES (?,?,?,?,?, 'dinner')''', (dinner, date, hour_str, hour_str2, group))
+                    conn.commit()
+                    st.success("Dodano obiad")
+                except sqlite3.Error as e:
+                    st.error(f"An error occurred: {e}")
 
 def addCruise():
     st.markdown("<h2>Dodaj rejs</h2>", unsafe_allow_html=True)
