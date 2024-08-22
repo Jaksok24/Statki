@@ -21,8 +21,9 @@ title_style = "color: White; background-color: #B0C4DE; text-align: Center; bord
 info_style = "color: White; background-color: #87CEFA; text-align: Center; border-radius: 10px; font-weight: bold;"
 
 #Łączenia się z bazą danych
-DB_PATH = os.path.join(os.path.dirname(__file__), 'statki.db')
-conn = sqlite3.connect(DB_PATH)
+db_path = os.path.join(os.path.dirname(__file__), 'db', 'statki.db')
+os.makedirs(os.path.dirname(db_path), exist_ok=True)
+conn = sqlite3.connect(db_path)
 c = conn.cursor()
 # c.execute('''CREATE TABLE IF NOT EXISTS rejs (id INTEGER PRIMARY KEY, customer TEXT, date DATE, hour TIME, ship TEXT, fee BOOLEAN, people INTEGER, nb TEXT, cruise TEXT, fee_cost INTEGER, catering TEXT, note TEXT, dc TEXT, checked TEXT)''')
 # c.execute('''CREATE TABLE IF NOT EXISTS dinners (dID INTEGER PRIMARY KEY, dinner TEXT, data DATE, hour_start TIME, hour_stop TIME, people INEGER, checked TEXT)''')
