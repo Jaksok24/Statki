@@ -443,10 +443,6 @@ with st.sidebar:
 
 #Strona główna
 if (selected == "Strona główna"):
-    c.execute("SELECT name FROM sqlite_master WHERE type='table';")
-    tables = c.fetchall()
-    st.write(f"Znalezione tabele: {tables}")
-    
     tab_1, tab_2 = st.tabs(["WYBRANY DZIEŃ :sunrise:", "WSZYSTKO :scroll:"])
     with tab_1:
         theDay = choiceTheDay()
