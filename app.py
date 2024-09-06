@@ -431,6 +431,26 @@ def editDinnerInfo(i, obj):
             conn.commit()
             st.success("Usunięto dane")
  
+#Filtrowanie
+def Filtr(name, start, stop, search):
+    if search:
+        query = """SELECT customer, dc, nb, ship, date, hour, cruise, people, fee, fee_cost, catering, note
+                   FROM rejs WHERE 1=1"""
+        if name:
+            query += f" AND (customer LIKE '%{name}%' OR ship LIKE '%{name}%' OR cruise LIKE '%{name}%' OR fee LIKE '%{name}%' OR people LIKE '%{name}%' OR nb LIKE '%{name}%' OR catering LIKE '%{name}%' OR note LIKE '%{name}%')"
+        if start and stop:
+            query += f" AND date BETWEEN '{start}' AND '{stop}'"
+        query += " ORDER BY date, hour"
+        c.execute(query)
+        rows = c.fetchall()
+        if rows:
+            df = pd.DataFrame(rows, columns=("Imię i nazwisko", "Kierunkowy", "Nr tel", "Statek", "Data", "Godzina", "Rejs", "Ilość ludzi", "Zaliczka", "Kwota zaliczki", "Katering", "Notatki"))    
+        else:
+            df = pd.DataFrame(columns=("Imię i nazwisko", "Kierunkowy", "Nr tel", "Statek", "Data", "Godzina", "Rejs", "Ilość ludzi", "Zaliczka", "Kwota zaliczki", "Katering", "Notatki"))
+        return df
+    else:
+        return showAllData()
+
 #Ustawienia SideBar
 with st.sidebar:
     selected = option_menu(
@@ -487,6 +507,22 @@ if selected == "Panel zarządzania":
     with tab2:
         addDinner()
     with tab3:
+        with st.container(border=True):
+            filcol = st.columns([1,1])
+            with filcol[0]:
+                filtr_input = st.text_input("Filtruj")
+            with filcol[1]:
+                filcol2 = st.columns([1,1])
+                with filcol2[0]:
+                    start_time_filtr = st.date_input("Początek", value=None)
+                with filcol2[1]:
+                    end_time_filtr = st.date_input("Koniec", value=None)
+            bfiltr_col = st.columns([1,1,1,1,1])
+            with bfiltr_col[0]:
+                search_button = st.button("Szukaj")
+            with bfiltr_col[4]:
+                clear_button = st.button("Wyczyść filtry")
+            dataframe_data = Filtr(filtr_input, start_time_filtr, end_time_filtr, search_button)
         editInfo()
     with tab4:
         addCruise()
@@ -497,27 +533,7 @@ def showAllData():
     df = pd.DataFrame([row for row in c.fetchall()], columns=("Imię i nazwisko", "Kierunkowy", "Nr tel", "Statek", "Data", "Godzina", "Rejs", "Ilość ludzi", "Zaliczka", "Kwota zaliczki", "Katering", "Notatki"))
     return df
 
-#Filtrowanie
-def Filtr(name, start, stop, search):
-    if search:
-        query = """SELECT customer, dc, nb, ship, date, hour, cruise, people, fee, fee_cost, catering, note
-                   FROM rejs WHERE 1=1"""
-        if name:
-            query += f" AND (customer LIKE '%{name}%' OR ship LIKE '%{name}%' OR cruise LIKE '%{name}%' OR fee LIKE '%{name}%' OR people LIKE '%{name}%' OR nb LIKE '%{name}%' OR catering LIKE '%{name}%' OR note LIKE '%{name}%')"
-        if start and stop:
-            query += f" AND date BETWEEN '{start}' AND '{stop}'"
-        query += " ORDER BY date, hour"
-        c.execute(query)
-        rows = c.fetchall()
-        if rows:
-            df = pd.DataFrame(rows, columns=("Imię i nazwisko", "Kierunkowy", "Nr tel", "Statek", "Data", "Godzina", "Rejs", "Ilość ludzi", "Zaliczka", "Kwota zaliczki", "Katering", "Notatki"))    
-        else:
-            df = pd.DataFrame(columns=("Imię i nazwisko", "Kierunkowy", "Nr tel", "Statek", "Data", "Godzina", "Rejs", "Ilość ludzi", "Zaliczka", "Kwota zaliczki", "Katering", "Notatki"))
-        return df
-    else:
-        return showAllData()
-
-#Historia
+#Spis rejsów
 if (selected == "Spis rejsów"):
     st.markdown("<h1 style=\"background-color: #87CEFA; color: #FFFFFF; border-radius: 10px; font-weight: bold; padding-left: 1rem;\">Spis rejsów<h1>", unsafe_allow_html=True)
     with st.container(border=True):
