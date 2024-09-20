@@ -60,5 +60,50 @@
                 <br><input class="button" type="submit" value="Zaloguj" id="zaloguj" name="zaloguj"><br>
             </form>
         </div>
+        <?php
+            class User{
+                public $login;
+                public $password;
+
+                public function __construct($login, $password){
+                    $this->login = $login;
+                    $this->password = $password;
+                }
+            }
+            
+            $host = "localhost";
+            $username = "root";
+            $pass = "";
+            $db = "port";
+
+            try {
+                $dsn = "mysql:host=$host;dbname=$db;charset=utf8";
+            
+                $pdo = new PDO($dsn, $username, $pass);
+        
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            
+                echo "";
+            } catch (PDOException $e) {
+                echo "Błąd połączenia: " . $e->getMessage();
+            }
+
+            if(isset($_POST["login"]) and isset($_POST["haslo"])){
+                // $command = "SELECT login, haslo FROM logowanie;";
+                // $result = 
+                
+                try{
+                    $stmt = $pdo->prepare("SELECT login, haslo FROM logowanie;");
+                    $stmt->execute();
+                    $result = $stmt->setFetchMode(PDO::FETCH_ASSOC);
+
+                    
+                
+                } catch(PDOException $e) {
+                    echo "Error: " . $e->getMessage();
+                }
+
+            }
+        ?>
     </body>
 </html>
