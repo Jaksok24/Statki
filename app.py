@@ -7,7 +7,7 @@ from streamlit_option_menu import option_menu
 import logging
 from logging import getLogger
 import re
-import os
+from dateutil.relativedelta import relativedelta
 
 # Konfiguracja strony
 st.set_page_config(page_title="Statki", page_icon=":ship:", layout="wide")
@@ -155,8 +155,13 @@ def printData():
                         </tr></table><br>''', unsafe_allow_html=True)
 
 #Pobieranie z bazy danych skróconych informacji o wszystkich rejsach
-def getShortDataForAll():
-    c.execute('''SELECT id, hour, SUM(people), ship, cruise, catering, checked, date FROM rejs GROUP BY hour, ship, cruise ORDER BY date, hour''')
+def getShortDataForLastMonth():
+    month = datetime.now()
+    month_ago = month - relativedelta(months=1)
+    month_str = month.strftime('%Y-%m-%d')
+    month_ago_str = month_ago.strftime('%Y-%m-%d')
+    query = f'''SELECT id, hour, SUM(people), ship, cruise, catering, checked, date FROM rejs WHERE date BETWEEN '{month_ago_str}' AND '{month_str}' GROUP BY hour, ship, cruise ORDER BY date, hour'''
+    c.execute(query)
     for elem in c.fetchall():
         cruiseInfo = Cruise(elem[0], elem[1], elem[2], elem[3], elem[4], elem[5], elem[6], elem[7])
         tablicaDanych2.append(cruiseInfo)
@@ -341,11 +346,41 @@ def editCruise(i, obj):
 
 #Edytowanie danych
 def editInfo():
-    c.execute('''SELECT * FROM
+    with st.container(border=True):
+        filcol = st.columns([1,1])
+        with filcol[0]:
+            filtr_edit = st.text_input("Filtruj")
+        with filcol[1]:
+            filcol2 = st.columns([1,1])
+            with filcol2[0]:
+                start_edit = st.date_input("Początek", value=None)
+            with filcol2[1]:
+                end_edit = st.date_input("Koniec", value=None)
+        bfiltr_col = st.columns([1,1,1,1,1])
+        with bfiltr_col[0]:
+            search_button = st.button("Szukaj")
+        with bfiltr_col[4]:
+            clear_button = st.button("Wyczyść filtry")
+        if clear_button:
+            szukaj = """c.execute('''SELECT * FROM
               (SELECT id, customer, dc, nb, date, hour, cruise, ship, people, fee, fee_cost, catering, note, checked FROM rejs
               UNION
               SELECT dID, hour_start as hour, hour_stop, people, dinner, ' ', ' ', data as date, ' ', ' ', ' ', ' ', ' ', checked FROM dinners)
-              ORDER BY hour, date''')
+              ORDER BY hour, date''')"""
+            x = compile('szukaj', 'szukaj', 'eval')
+            exec(x)  
+        elif search_button:
+            query = """SELECT * FROM
+                    (SELECT id, customer, dc, nb, date, hour, cruise, ship, people, fee, fee_cost, catering, note, checked FROM rejs
+                    UNION
+                    SELECT dID, hour_start as hour, hour_stop, people, dinner, ' ', ' ', data as date, ' ', ' ', ' ', ' ', ' ', checked FROM dinners)
+                    WHERE 1=1"""
+            if filtr_edit:
+                query += f" AND (customer LIKE '%{filtr_edit}%' OR ship LIKE '%{filtr_edit}%' OR cruise LIKE '%{filtr_edit}%' OR fee LIKE '%{filtr_edit}%' OR people LIKE '%{filtr_edit}%' OR nb LIKE '%{filtr_edit}%' OR catering LIKE '%{filtr_edit}%' OR note LIKE '%{filtr_edit}%')"
+            if start_edit and end_edit:
+                query += f" AND date BETWEEN '{start_edit}' AND '{end_edit}'"
+            query += " ORDER BY date, hour"
+            c.execute(query)
     for row in c.fetchall():
         if row[13] == 'cruise':
             cruiseInfo = Details(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], int(row[8]), row[9], row[10], row[11], row[12], row[13])
@@ -443,13 +478,13 @@ with st.sidebar:
 
 #Strona główna
 if (selected == "Strona główna"):
-    tab_1, tab_2 = st.tabs(["WYBRANY DZIEŃ :sunrise:", "WSZYSTKO :scroll:"])
+    tab_1, tab_2 = st.tabs(["WYBRANY DZIEŃ :sunrise:", "OSTATNI MIESIĄC :scroll:"])
     with tab_1:
         theDay = choiceTheDay()
         getShortData(theDay)
         printData()
     with tab_2:
-        getShortDataForAll()
+        getShortDataForLastMonth()
         printDataForAll()
 
 #Szczegóły rejsów
